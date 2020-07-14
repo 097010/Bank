@@ -12,68 +12,68 @@ namespace Bank
 {
     public class Program
     {
+        
 
-        static async void Main(string[] args)
+        static void Main(string[] args)
         {
-
-
-            DisplayClock displayClock = new DisplayClock();
-
-            ThreadStart TS = await new ThreadStart();
-
-            Thread t = new Thread(TS);
-
-            t.Start();
-
-            Console.ReadLine();
-            Userview();
-            Account account = new Account();
             while (true)
             {
-                int licz = int.Parse(Console.ReadLine());
+                
+                Userview();
+                Account account = new Account();
+                while (true)
+                {
+                    Console.WriteLine();
+                    Console.Write("Wybierz co chcesz zrobić i zatwierdź naciskając ENTER : ");
+                    int licz = int.Parse(Console.ReadLine());
 
-                if (licz == 1)
-                {
-                    Console.WriteLine("Witamy w aplikacji bankowej twoj obecny stan konta wynosi:" + account.Balance + "zł");
-                }
-                else if (licz == 2)
-                {
-                    Console.WriteLine("Podaj kwotę wpałaty: ");
-                    account.Payment = int.Parse(Console.ReadLine());
-                    account.Balance += account.Payment;
-                    Console.WriteLine("Saldo po dokanoaniu wpłaty " + account.Balance + "zł");
-                }
-                else if (licz == 3)
-                {
-                    Console.WriteLine("Jaką kwotę chcesz wypłacić: ");
-                    account.Payoff = int.Parse(Console.ReadLine());
-                    account.Balance -= account.Payoff;
-                    Console.WriteLine("Saldo po dokonaniu wypłaty" + account.Balance + "zł");
-                }
-                else if (licz == 4)
-                {
+                    if (licz == 1)
+                    {
+                        Back();
+                        Console.WriteLine();
+                        Console.WriteLine("Witamy w aplikacji bankowej twoj obecny stan konta wynosi:" + account.Balance + "zł");
+                    }
+                    else if (licz == 2)
+                    {
+                        Back();
+                        Console.Write("Podaj kwotę wpałaty: ");
+                        account.Payment = int.Parse(Console.ReadLine());
+                        account.Balance += account.Payment;
+                        Console.WriteLine("Saldo po dokanoaniu wpłaty " + account.Balance + "zł");
+                    }
+                    else if (licz == 3)
+                    {
+                        Back();
+                        Console.Write("Jaką kwotę chcesz wypłacić: ");
+                        account.Payoff = int.Parse(Console.ReadLine());
+                        account.Balance -= account.Payoff;
+                        Console.WriteLine("Saldo po dokonaniu wypłaty" + account.Balance + "zł");
+                    }
+                    else if (licz == 4)
+                    {
 
-                }
-                else if (licz == 5)
-                {
-                    Back();
-                }
-                else if (licz == 6)
-                {
-                    System.Environment.Exit(1);
-                }
-                else
-                {
-                    Console.WriteLine("Nie można wykonać tej operacji!");
+                    }
+                    else if (licz == 5)
+                    {
+                        Back();
+                    }
+                    else if (licz == 6)
+                    {
+                        System.Environment.Exit(1);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Nie można wykonać tej operacji!");
+                    }
                 }
             }
 
         }
         public static void Userview()
         {
-            
+            Console.Write("\t MENU");
+
             Console.WriteLine();
-            Console.WriteLine("MENU");
             Console.WriteLine("1. Wejdź na konto bankowe");
             Console.WriteLine("2. Wpłać pieniądze");
             Console.WriteLine("3. Wypłać pieniądze");
@@ -97,23 +97,27 @@ namespace Bank
     }
     public class DisplayClock
     {
-        public static void ShowTime()
+        public static async void ShowTime()
         {
             for (; ; )
             {
+                await Task.Run(ShowTime);
+
                 var showtime = DateTime.Now.ToString();
 
-                Task.Run(ShowTime);
-
-                Console.WriteLine(showtime);
+                Console.Write(showtime);
 
                 Thread.Sleep(1000);
 
-                Console.Clear();
-
-               
+                ClearCurrentConsoleLine();
             }
-            
+        }
+        public static void ClearCurrentConsoleLine()
+        {
+            int currentLineCursor = Console.CursorTop;
+            Console.SetCursorPosition(0 , Console.CursorTop);
+            Console.Write(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0 , currentLineCursor);
         }
     }
 }
