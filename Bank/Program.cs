@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,119 +22,171 @@ namespace Bank
         {
             while (true)
             {
-
+                List<Register> Registered_Users = new List<Register>();
                 Register register = new Register();
                 Login login = new Login();
-                Console.WriteLine("REJSTRACJA - 1");
-                Console.WriteLine("LOGOWANIE - 2");
-                int x = int.Parse(Console.ReadLine());
-                if (x == 1)
-                {
+                jump2:
+                Console.Write("Naciśnij 1 by się zarejestrować lub 2 by zalogować: ");
+                int a = int.Parse(Console.ReadLine());
 
-                    Console.WriteLine("Podaj nazwę użytkownika: ");
+                if (a == 1)
+                {
+                    Console.Write("Podaj nazwę urzytkownika: ");
                     register.UserName = Console.ReadLine();
                     jump:
-                    Console.WriteLine("Podaj hasło: ");
-                    register.Password = Console.ReadLine();
-                    Console.WriteLine("Powtórz hasło: ");
-                    register.Repeat_Password = Console.ReadLine();
+                    Console.Write("Podaj hasło: ");
+                    register.Password = string.Empty;
+                    ConsoleKey key;
+                    do
+                    {
+                        var keyInfo = Console.ReadKey(intercept: true);
+                        key = keyInfo.Key;
+
+                        if (key == ConsoleKey.Backspace && register.Password.Length > 0)
+                        {
+                            Console.Write("\b \b");
+                            register.Password = register.Password[0..^1];
+                        }
+                        else if (!char.IsControl(keyInfo.KeyChar))
+                        {
+                            Console.Write("*");
+                            register.Password += keyInfo.KeyChar;
+                        }
+                    } while (key != ConsoleKey.Enter);
+                    Console.WriteLine();
+                    Console.Write("Powtórz hasło: ");
+                    register.Repeat_Password = string.Empty;
+                    ConsoleKey key1;
+                    do
+                    {
+                        var keyInfo = Console.ReadKey(intercept: true);
+                        key1 = keyInfo.Key;
+
+                        if (key1 == ConsoleKey.Backspace && register.Repeat_Password.Length > 0)
+                        {
+                            Console.Write("\b \b");
+                            register.Repeat_Password = register.Repeat_Password[0..^1];
+                        }
+                        else if (!char.IsControl(keyInfo.KeyChar))
+                        {
+                            Console.Write("*");
+                            register.Repeat_Password += keyInfo.KeyChar;
+                        }
+                    } while (key1 != ConsoleKey.Enter);
+
                     if (register.Password == register.Repeat_Password)
                     {
-                        Console.WriteLine("Rejstracja przebiegła pomyślnie");
+                        Registered_Users.Add(new Register
+                        {
+                            UserName = register.UserName,
+                            Password = register.Password
+                        });
                         Console.Clear();
-                        Console.WriteLine(".");
-                        Thread.Sleep(1000);
+                        Console.WriteLine("Zarejestrowano pomyślnie");
+                    }
+                    else if (register.Password != register.Repeat_Password)
+                    {
                         Console.Clear();
-                        Console.WriteLine("..");
-                        Thread.Sleep(1000);
-                        Console.Clear();
-                        Console.WriteLine("...");
-                        Thread.Sleep(1000);
-                        Console.Clear();
+                        Console.WriteLine("Hasła nie są takie same!");
+                        goto jump;
+                    }
+                    goto jump2;
+                }
+                else if (a == 2)
+                {
+                    Console.Write("Wprowadź Login: ");
+                    login.UserName = Console.ReadLine();
+                    Console.Write("Podaj hasło: ");
+                    login.Password = string.Empty;
+                    ConsoleKey key2;
+                    do
+                    {
+                        var keyInfo = Console.ReadKey(intercept: true);
+                        key2 = keyInfo.Key;
+
+                        if (key2 == ConsoleKey.Backspace && login.Password.Length > 0)
+                        {
+                            Console.Write("\b \b");
+                            login.Password  = login.Password[0..^1];
+                        }
+                        else if (!char.IsControl(keyInfo.KeyChar))
+                        {
+                            Console.Write("*");
+                            login.Password += keyInfo.KeyChar;
+                        }
+                    } while (key2 != ConsoleKey.Enter);
+                    WaitingScreen();
+                    Console.Clear();
+                    if (login.Password == register.Password && login.UserName == register.UserName)
+                    {
+                        Console.WriteLine("Witaj " + register.UserName);
+                        Userview();
+                        while (true)
+                        {
+                            Account account = new Account();
+                            Console.WriteLine();
+                            Console.Write("Wybierz co chcesz zrobić i zatwierdź naciskając ENTER : ");
+                            int licz = int.Parse(Console.ReadLine());
+
+                            if (licz == 1)
+                            {
+                                Back();
+                                Console.WriteLine();
+                                Console.WriteLine("Witamy w aplikacji bankowej twoj obecny stan konta wynosi: " + account.Balance + "zł");
+                            }
+                            else if (licz == 2)
+                            {
+                                Back();
+                                Console.Write("Podaj kwotę wpałaty: ");
+                                account.Payment = int.Parse(Console.ReadLine());
+                                account.Balance += account.Payment;
+                                Console.WriteLine("Saldo po dokanoaniu wpłaty " + account.Balance + "zł");
+                            }
+                            else if (licz == 3)
+                            {
+                                Back();
+                                Console.Write("Jaką kwotę chcesz wypłacić: ");
+                                account.Payoff = int.Parse(Console.ReadLine());
+                                account.Balance -= account.Payoff;
+                                Console.WriteLine("Saldo po dokonaniu wypłaty: " + account.Balance + "zł");
+                            }
+                            else if (licz == 4)
+                            {
+
+
+
+                            }
+                            else if (licz == 5)
+                            {
+                                Back();
+                            }
+                            else if (licz == 6)
+                            {
+                                System.Environment.Exit(1);
+                            }
+                            else if (licz == 7)
+                            {
+                                DisplayClock.ShowTime();
+                                Back();
+                            }
+                            else if (licz == 8)
+                            {
+                                //Wylogowanie
+                            }
+                            else
+                            {
+                                Console.WriteLine("Nie można wykonać tej operacji!");
+                            }
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("Podane hasła się nie zgadzają spróbuj jeszcze raz");
-                        register.Password = string.Empty;
-                        register.Repeat_Password = string.Empty;
-                        goto jump;
-                    }
-                }
-                if (x == 2)
-                {
-
-                    Console.WriteLine("Wprowadź Login: ");
-                    login.UserName = Console.ReadLine();
-                    if (login.UserName == register.UserName)
-                    {
-                        Console.WriteLine("Wrpwadź Hasło: ");
-                        login.Password = Console.ReadLine();
-                        if (login.Password == register.Password)
-                        {
-                            Console.WriteLine("Zalogowano pomyślnie");
-                            Console.Clear();
-
-                        }
+                        Console.WriteLine("Login lub hasło jest nieprawidłowe");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Nie udało się zalogować ; (");
-                }
-                if (login.Password == register.Password && login.UserName == register.UserName)
-                {
-                    Console.WriteLine("WitaJ");
-                    Userview();
-                    Account account = new Account();
-                    while (true)
-                    {
-                        Console.WriteLine();
-                        Console.Write("Wybierz co chcesz zrobić i zatwierdź naciskając ENTER : ");
-                        int licz = int.Parse(Console.ReadLine());
-
-                        if (licz == 1)
-                        {
-                            Back();
-                            Console.WriteLine();
-                            Console.WriteLine("Witamy w aplikacji bankowej twoj obecny stan konta wynosi:" + account.Balance + "zł");
-                        }
-                        else if (licz == 2)
-                        {
-                            Back();
-                            Console.Write("Podaj kwotę wpałaty: ");
-                            account.Payment = int.Parse(Console.ReadLine());
-                            account.Balance += account.Payment;
-                            Console.WriteLine("Saldo po dokanoaniu wpłaty " + account.Balance + "zł");
-                        }
-                        else if (licz == 3)
-                        {
-                            Back();
-                            Console.Write("Jaką kwotę chcesz wypłacić: ");
-                            account.Payoff = int.Parse(Console.ReadLine());
-                            account.Balance -= account.Payoff;
-                            Console.WriteLine("Saldo po dokonaniu wypłaty: " + account.Balance + "zł");
-                        }
-                        else if (licz == 4)
-                        {
-
-                        }
-                        else if (licz == 5)
-                        {
-                            Back();
-                        }
-                        else if (licz == 6)
-                        {
-                            System.Environment.Exit(1);
-                        }
-                        else if (licz == 7)
-                        {
-                            //Wylogowanie
-                        }
-                        else
-                        {
-                            Console.WriteLine("Nie można wykonać tej operacji!");
-                        }
-                    }
+                    Console.WriteLine("Błąd operacji");
                 }
             }
         }
@@ -146,14 +199,27 @@ namespace Bank
             Console.Write("\t MENU");
 
             Console.WriteLine();
-            Console.WriteLine("1. Wejdź na konto bankowe");
+            Console.WriteLine("1. Zobacz stan konta");
             Console.WriteLine("2. Wpłać pieniądze");
             Console.WriteLine("3. Wypłać pieniądze");
             Console.WriteLine("4. Zarządzać stopą procentową");
             Console.WriteLine("5. Cofnij");
             Console.WriteLine("6. Zamknij program");
-            Console.WriteLine("7. Wyloguj");
-
+            Console.WriteLine("7. Wyświetl aktualną godzinę");
+            Console.WriteLine("8. Wyloguj");
+        }
+        public static void WaitingScreen()
+        {
+            Console.Clear();
+            Console.WriteLine(".");
+            Thread.Sleep(1000);
+            Console.Clear();
+            Console.WriteLine("..");
+            Thread.Sleep(1000);
+            Console.Clear();
+            Console.WriteLine("...");
+            Thread.Sleep(1000);
+            Console.Clear();
         }
         public static void Back()
         {
@@ -170,12 +236,10 @@ namespace Bank
     }
     public class DisplayClock
     {
-        public static async void ShowTime()
+        public static void ShowTime()
         {
-            for (; ; )
+            for (int i = 0; i < 5; i++)
             {
-                await Task.Run(ShowTime);
-
                 var showtime = DateTime.Now.ToString();
 
                 Console.Write(showtime);
@@ -183,6 +247,7 @@ namespace Bank
                 Thread.Sleep(1000);
 
                 ClearCurrentConsoleLine();
+
             }
         }
         public static void ClearCurrentConsoleLine()
@@ -210,6 +275,7 @@ namespace Bank
         public string UserName { get; set; }
         public string Password { get; set; }
         public User User { get; set; }
+        public Register Register { get; set; }
     }
 }
 
